@@ -3,9 +3,22 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
+  Redirect,
   Link
 } from "react-router-dom";
 import {login, authFetch, useAuth, logout} from "./auth"
+
+
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  const [logged] = useAuth();
+
+  return <Route {...rest} render={(props) => (
+    logged
+      ? <Component {...props} />
+      : <Redirect to='/login' />
+  )} />
+}
+
 
 export default function App() {
   return (
@@ -31,9 +44,7 @@ export default function App() {
           <Route path="/login">
             <Login />
           </Route>
-          <Route path="/secret">
-            <Secret />
-          </Route>
+          <PrivateRoute path="/secret" component={Secret} />
           <Route path="/">
             <Home />
           </Route>
@@ -44,9 +55,6 @@ export default function App() {
 }
 
 function Home() {
-  useEffect(() => {
-    fetch("/api").then(resp => resp.json()).then(resp => console.log(resp))
-  }, [])
   return <h2>Home</h2>;
 }
 
