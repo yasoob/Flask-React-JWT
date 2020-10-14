@@ -41,7 +41,7 @@ class User(db.Model):
 
 
 # Initialize flask app for the example
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_folder='../build', static_url_path=None)
 app.debug = True
 app.config['SECRET_KEY'] = 'top secret'
 app.config['JWT_ACCESS_LIFESPAN'] = {'hours': 24}
@@ -103,6 +103,15 @@ def protected():
     """
     return {"message": f'protected endpoint (allowed user {flask_praetorian.current_user().username})'}
 
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    print("Hello from catch all")
+    if path != "" and os.path.exists(os.path.join('..','build',path)):
+        return app.send_static_file(path)
+    else:
+        return app.send_static_file('index.html')
 
 # Run the example
 if __name__ == '__main__':
